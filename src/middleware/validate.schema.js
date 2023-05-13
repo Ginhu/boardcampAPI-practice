@@ -101,3 +101,15 @@ export function validateRentalNotReturned (req, res, next) {
     next()
     
 }
+
+export async function validateReturnDate(req, res, next) {
+    const {id} = res.locals
+
+    try {
+        const rental = await db.query(`SELECT * FROM rentals WHERE id=$1`, [id])
+        if(rental.rows[0].returnDate === null) return res.sendStatus(400)
+    } catch (err) { 
+        console.log(err.message)
+    }
+    next()
+}

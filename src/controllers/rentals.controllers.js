@@ -27,13 +27,31 @@ export async function insertRental (req, res) {
 
 export async function finalizeRent (req, res) {
     const today = new Date()
-    const {rentals} = res.locals
+    const {rentals, id} = res.locals
+
+    const rentDate = new Date(rentals.rows[0].rentDate)
+    const returnDay = rentDate.setDate(rentDate.getDate() + rentals.rows[0].daysRented)
+    const daysDifference = Math.ceil((returnDay - today)/(1000*60*60*24))
+    let delayFee = 0
+
+    if(daysDifference < 0) {
+        delayFee = ((rentals.rows[0].originalPrice/rentals.rows[0].daysRented)*Math.abs(daysDifference))
+    }
+
     try {
-        const rentDate = new Date(rentals.rows[0].rentDate)
-        const returnDay = rentDate.setDate(rentDate.getDate() + rentals.rows[0].daysRented)
-        if(returnDay >= today) console.log("good")
-        console.log(dayjs(returnDay).format('YYYY-MM-DD'))
-        res.send("eae")
+        await db.query(`UPDATE rentals SET "returnDate"=$1, "delayFee"=$2 WHERE id=$3`, [dayjs(today).format('YYYY-MM-DD'), delayFee, id])
+        res.sendStatus(200)
+    } catch (err) {
+        console.log(err.message)
+    }
+}
+
+export async function deleteRental (req, res) {
+    const {id} = res.locals
+
+    try {
+        await db.query(`DELETE FROM rentals WHERE id=$1`, [id])
+        res.sendStatus(200)
     } catch (err) {
         console.log(err.message)
     }

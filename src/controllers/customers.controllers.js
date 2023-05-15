@@ -47,8 +47,8 @@ export async function updateCustomer (req, res) {
     const {id} = req.params
 
     try {
-        const notCorrectCustomer = await db.query(`SELECT * FROM customers WHERE id=$1`, [id])
-        if(notCorrectCustomer.rowCount > 0 && notCorrectCustomer.rows[0].cpf != cpf) return res.sendStatus(409)
+        const notCorrectCustomer = await db.query(`SELECT * FROM customers WHERE cpf=$1`, [cpf])
+        if(notCorrectCustomer.rowCount > 0) return res.sendStatus(409)
         await db.query(`UPDATE customers SET name=$1, phone=$2, birthday=$3 WHERE id=$4`, [name, phone, birthday, id])
         res.sendStatus(200)
         

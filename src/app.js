@@ -9,4 +9,4 @@ app.use(cors())
 app.use(router);
 
 
-app.listen(process.env.PORT, ()=>console.log(`Server ON - ${PORT}`))
+app.listen(process.env.PORT, ()=>console.log(`Server ON - ${process.env.PORT}`))

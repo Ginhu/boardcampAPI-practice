@@ -2,8 +2,14 @@ import { db } from "../database/database.connection.js";
 import dayjs from "dayjs";
 
 export async function getCustomers(req, res) {
+    const {cpf} = req.query
     try {
-        const customers = await db.query(`SELECT * FROM customers;`)
+        let customers
+        if(cpf) {
+            customers = await db.query(`SELECT * FROM customers WHERE cpf LIKE '%${cpf}%';`)
+        } else {
+            customers = await db.query(`SELECT * FROM customers;`)
+        }
         customers.rows.map(el=> el.birthday = dayjs(el.birthday).format('YYYY-MM-DD'))
         res.send(customers.rows)
     } catch (err) {

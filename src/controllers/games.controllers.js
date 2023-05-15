@@ -1,8 +1,17 @@
 import {db} from "../database/database.connection.js"
 
 export async function getGames(req, res) {
+    const {name} = req.query
+
     try {
-        const gamesInDB = await db.query(`SELECT * FROM games;`)
+        let gamesInDB;
+        if(name) {
+            gamesInDB = await db.query(`SELECT * FROM games WHERE name LIKE '%${name}%';`)
+            console.log(name)
+        } else {
+            gamesInDB = await db.query(`SELECT * FROM games;`)
+        }
+        
         res.send(gamesInDB.rows)
     } catch (err) {
         console.log(err.message)

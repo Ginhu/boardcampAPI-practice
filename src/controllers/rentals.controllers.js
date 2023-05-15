@@ -2,11 +2,34 @@ import {db} from "../database/database.connection.js"
 import dayjs from "dayjs"
 
 export async function getRentals (req, res)  {
+    const {customerId, gameId, status, startDate} = req.query
+    const queryString = `
+    SELECT rentals.*, customers.name AS customer_name, games.name AS game_name
+    FROM rentals
+    JOIN customers ON rentals."customerId"=customers.id
+    JOIN games ON rentals."gameId"=games.id`
+
     try {
-        const rentals = await db.query(`SELECT rentals.*, customers.name AS customer_name, games.name AS game_name
-        FROM rentals
-        JOIN customers ON rentals."customerId"=customers.id
-        JOIN games ON rentals."gameId"=games.id;`)
+        let rentals
+        if (customerId) {
+            rentals = await db.query(`${queryString}
+            WHERE "customerId"=${customerId};`)
+        } else if (gameId) {
+            rentals = await db.query(`${queryString}
+            WHERE "gameId"=${gameId};`)
+        } else if (status==='open'){
+            rentals = await db.query(`${queryString}
+            WHERE "returnDate" IS NULL;`)
+        } else if (status==='closed') {
+            rentals = await db.query(`${queryString}
+            WHERE "returnDate" IS NOT NULL;`)
+        } else if (startDate) {
+            rentals = await db.query(`${queryString}
+            WHERE "rentDate">='${startDate}';`)
+        } else {
+            rentals = await db.query(`${queryString};`)
+        }
+        
         rentals.rows.map(el=> {
             el.rentDate = dayjs(el.rentDate).format('YYYY-MM-DD')
             if (el.returnDate != null) el.returnDate = dayjs(el.returnDate).format('YYYY-MM-DD')

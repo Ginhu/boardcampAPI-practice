@@ -4,6 +4,10 @@ import dayjs from "dayjs"
 export async function getRentals (req, res)  {
     try {
         const rentals = await db.query(`SELECT * FROM rentals;`)
+        rentals.rows.map(el=> {
+            el.rentDate = dayjs(el.rentDate).format('YYYY-MM-DD')
+            if (el.returnDate != null) el.returnDate = dayjs(el.returnDate).format('YYYY-MM-DD')
+        })
         res.send(rentals.rows)
     } catch (err) {
         console.log(err)

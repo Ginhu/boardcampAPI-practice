@@ -8,5 +8,5 @@ app.use(cors())
 
 app.use(router);
 
-
-app.listen(process.env.PORT, ()=>console.log(`Server ON - ${process.env.PORT}`))
+const PORT = 5000
+app.listen(PORT, ()=>console.log(`Server ON - ${process.env.PORT}`))

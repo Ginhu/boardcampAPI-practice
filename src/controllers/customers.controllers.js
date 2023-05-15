@@ -4,6 +4,7 @@ import dayjs from "dayjs";
 export async function getCustomers(req, res) {
     try {
         const customers = await db.query(`SELECT * FROM customers;`)
+        customers.rows.map(el=> el.birthday = dayjs(el.birthday).format('YYYY-MM-DD'))
         res.send(customers.rows)
     } catch (err) {
         console.log(err.message)

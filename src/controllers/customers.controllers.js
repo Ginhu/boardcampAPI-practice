@@ -51,8 +51,9 @@ export async function updateCustomer (req, res) {
     try {
         const notCorrectCustomer = await db.query(`SELECT * FROM customers WHERE id=$1`, [id])
         const notCorrectCustomerCpf = await db.query(`SELECT * FROM customers WHERE cpf=$1`, [cpf])
-        if(notCorrectCustomer.rowCount === 0 || notCorrectCustomerCpf.rows[0].id != id) return res.sendStatus(409)
-        await db.query(`UPDATE customers SET name=$1, phone=$2, birthday=$3 WHERE id=$4`, [name, phone, birthday, id])
+        if(notCorrectCustomer.rowCount === 0) return res.sendStatus(409)
+        if((notCorrectCustomerCpf.rowCount>0 && notCorrectCustomerCpf.rows[0].id != id)) return res.sendStatus(409)
+        await db.query(`UPDATE customers SET name=$1, phone=$2, birthday=$3, cpf=$5 WHERE id=$4`, [name, phone, birthday, id, cpf])
         res.sendStatus(200)
         
     } catch (err) {

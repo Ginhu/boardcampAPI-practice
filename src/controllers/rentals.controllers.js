@@ -3,10 +3,23 @@ import dayjs from "dayjs"
 
 export async function getRentals (req, res)  {
     try {
-        const rentals = await db.query(`SELECT * FROM rentals;`)
+        const rentals = await db.query(`SELECT rentals.*, customers.name AS customer_name, games.name AS game_name
+        FROM rentals
+        JOIN customers ON rentals."customerId"=customers.id
+        JOIN games ON rentals."gameId"=games.id;`)
         rentals.rows.map(el=> {
             el.rentDate = dayjs(el.rentDate).format('YYYY-MM-DD')
             if (el.returnDate != null) el.returnDate = dayjs(el.returnDate).format('YYYY-MM-DD')
+            el.customer = {
+                id: el.customerId,
+                name: el.customer_name
+            }
+            el.game = {
+                id: el.gameId,
+                name: el.game_name
+            }
+            delete el.customer_name;
+            delete el.game_name;
         })
         res.send(rentals.rows)
     } catch (err) {
